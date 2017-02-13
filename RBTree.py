@@ -1,4 +1,5 @@
 from Tkinter import *
+import tkMessageBox
 
 class Node(object):
 
@@ -134,25 +135,26 @@ class RBTree(object):
 
     @staticmethod
     def draw_spacing_to_left(canvas, start_height, start_width, height):
-        canvas.create_line(start_width, start_height + RBTree.default_size/2, start_width - height*RBTree.width_spacing,
+        canvas.create_line(start_width, start_height + RBTree.default_size/2, start_width - (height*RBTree.width_spacing),
                            start_height + RBTree.height_spacing + RBTree.default_size/2, fill="black", width="2")
 
     @staticmethod
     def draw_spacing_to_right(canvas, start_height, start_width, height):
-        canvas.create_line(start_width, start_height + RBTree.default_size/2, start_width + height*RBTree.width_spacing,
+        canvas.create_line(start_width, start_height + RBTree.default_size/2, start_width + (height*RBTree.width_spacing),
                            start_height + RBTree.height_spacing + RBTree.default_size/2, fill="black", width="2")
 
     @staticmethod
     def draw_node(node, canvas, start_height, start_width):
         if node is not None:
             start = start_width - (RBTree.default_size/2)
-            height = RBTree.height(node)
+            height_left = RBTree.height(node)
+            height_right = RBTree.height(node)
             if node.left is not None:
-                RBTree.draw_spacing_to_left(canvas, start_height, start_width, height)
-                RBTree.draw_node(node.left, canvas, (start_height + RBTree.height_spacing), (start_width - RBTree.width_spacing*height))
+                RBTree.draw_spacing_to_left(canvas, start_height, start_width, height_left)
+                RBTree.draw_node(node.left, canvas, (start_height + RBTree.height_spacing), (start_width - (height_left*RBTree.width_spacing)))
             if node.right is not None:
-                RBTree.draw_spacing_to_right(canvas, start_height, start_width, height)
-                RBTree.draw_node(node.right, canvas, (start_height + RBTree.height_spacing), (start_width + RBTree.width_spacing*height))
+                RBTree.draw_spacing_to_right(canvas, start_height, start_width, height_right)
+                RBTree.draw_node(node.right, canvas, (start_height + RBTree.height_spacing), (start_width + height_right*RBTree.width_spacing ))
             canvas.create_oval(start, start_height, (start + RBTree.default_size), (start_height + RBTree.default_size),
                                fill="red" if node.color else "black")
             canvas.create_text(start_width, start_height + RBTree.default_size / 2,
@@ -160,20 +162,24 @@ class RBTree(object):
 
 
 def insert_and_print_tree(rbtree, entry, canvas):
-    rbtree.insert(int(entry.get()))
-    rbtree.print_level_order(tree.height(tree.root) + 1)
-    e.delete(0, END)
-    rbtree.draw_tree_on_canvas(canvas)
+    try:
+        rbtree.insert(int(entry.get()))
+        rbtree.print_level_order(tree.height(tree.root) + 1)
+        e.delete(0, END)
+        rbtree.draw_tree_on_canvas(canvas)
+    except ValueError:
+        tkMessageBox.showerror(title="Error", message="Put some value!!!")
 
 
 tree = RBTree()
 root = Tk()
+canvas = Canvas(root, bg="white", height=800, width=800)
+e = Entry(root)
+b = Button(root, text="insert", command=lambda: insert_and_print_tree(tree, e, canvas))
+e.bind("<Return>", lambda x: insert_and_print_tree(tree, e, canvas))
+e.pack()
+b.pack()
+canvas.pack()
 root.geometry("1000x1000")
 root.resizable(0, 0)
-e = Entry(root)
-e.pack()
-b = Button(root, text="insert", command=lambda: insert_and_print_tree(tree, e, canvas))
-b.pack()
-canvas = Canvas(root, bg="white", height=800, width=800)
-canvas.pack()
 root.mainloop()
